@@ -186,10 +186,25 @@
             height: 100%;
             object-fit: cover;
             opacity: 0.3;
+            display: block;
+            /* Varsayılan */
         }
 
         .preview-card.filled img {
-            opacity: 1;
+            display: none;
+            /* Resmi gizle */
+        }
+
+        /* Çekildiğinde Tik İşareti Göster */
+        .preview-card.filled::after {
+            content: "✔";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            color: #22c55e;
+            font-weight: bold;
         }
 
         .preview-card span {
@@ -275,7 +290,7 @@
         </div>
 
         <button id="submit-btn" disabled>Onayla ve Gönder</button>
-        <div id="version-tag">v1.9 (Stable - Reverted)</div>
+        <div id="version-tag">v1.10 (Privacy: Images Hidden)</div>
     </div>
 
     <canvas id="process-canvas"></canvas>
@@ -670,15 +685,15 @@
                 const step = steps[currentStepIndex];
                 if (step === "id_front") {
                     frontImage = dataUrl;
-                    previewFront.src = dataUrl;
+                    // previewFront.src = dataUrl; // Resmi ekranda gösterme (Gizlilik)
                     cardFront.classList.add("filled");
                 } else if (step === "id_back") {
                     backImage = dataUrl;
-                    previewBack.src = dataUrl;
+                    // previewBack.src = dataUrl;
                     cardBack.classList.add("filled");
                 } else if (step === "selfie") {
                     selfieImage = dataUrl;
-                    previewSelfie.src = dataUrl;
+                    // previewSelfie.src = dataUrl;
                     cardSelfie.classList.add("filled");
                 }
             }
