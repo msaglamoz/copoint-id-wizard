@@ -275,7 +275,7 @@
         </div>
 
         <button id="submit-btn" disabled>Onayla ve Gönder</button>
-        <div id="version-tag">v1.5 (CORS Fix)</div>
+        <div id="version-tag">v1.6 (Selfie Manual)</div>
     </div>
 
     <canvas id="process-canvas"></canvas>
@@ -340,7 +340,7 @@
             const hints = {
                 id_front: "Kimliği dikdörtgenin içine yerleştirin.",
                 id_back: "Kimliğin arka yüzünü yerleştirin.",
-                selfie: "Yüzünüzü daire içine alın."
+                selfie: "Lütfen 'Manuel Çek' butonuna basın."
             };
 
             stepIndicator.textContent = labels[step];
@@ -358,7 +358,7 @@
             if (step === "id_back") cardBack.style.borderColor = "#2563eb";
             if (step === "selfie") cardSelfie.style.borderColor = "#2563eb";
 
-            statusEl.innerHTML = isSelfie ? "Selfie için hazır" : "Aranıyor...";
+            statusEl.innerHTML = isSelfie ? "Selfie: Butona basın" : "Aranıyor...";
             statusEl.style.color = "#fbbf24";
         }
 
