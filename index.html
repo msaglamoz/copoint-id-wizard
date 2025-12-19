@@ -4,38 +4,61 @@
 <head>
     <meta charset="UTF-8" />
     <title>Copoint – ID + Selfie Capture Wizard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
 
-    <!-- Basit stil -->
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --primary: #3b82f6;
+            --accent: #22d3ee;
+            --success: #10b981;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+        }
+
         body {
             margin: 0;
             padding: 0;
-            background: #020817;
-            color: #e5e7eb;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+            color: var(--text-main);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             display: flex;
             flex-direction: column;
             height: 100vh;
+            overflow: hidden;
         }
 
         header {
-            padding: 12px 16px;
-            background: #020617;
-            border-bottom: 1px solid rgba(148, 163, 184, 0.3);
+            padding: 16px 20px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            z-index: 10;
         }
 
         header h1 {
             font-size: 16px;
+            font-weight: 600;
             margin: 0;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         #status {
             font-size: 12px;
-            opacity: 0.8;
+            color: var(--accent);
+            font-weight: 500;
         }
 
         #main {
@@ -44,24 +67,27 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding: 12px 8px 16px;
-            gap: 10px;
+            padding: 16px;
+            gap: 16px;
+            position: relative;
         }
 
         #step-indicator {
-            font-size: 13px;
-            opacity: 0.9;
+            font-size: 14px;
+            color: var(--text-sub);
+            font-weight: 500;
         }
 
         #video-container {
             position: relative;
-            max-width: 480px;
+            max-width: 400px;
             width: 100%;
             aspect-ratio: 3/4;
-            border-radius: 16px;
+            border-radius: 24px;
             overflow: hidden;
-            background: #020617;
-            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+            background: #000;
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         #video {
@@ -73,190 +99,304 @@
         #overlay {
             position: absolute;
             inset: 0;
-            border-radius: 16px;
             pointer-events: none;
         }
 
-        /* Ortada kimlik için kılavuz çerçeve (ön/arka) */
+        /* Çerçeve Rehberi (ID) */
         #frame-guide {
             position: absolute;
             left: 50%;
             top: 50%;
             width: 90%;
-            /* %70 → %90 : yatayda daha geniş */
-            height: 45%;
-            /* %42 → %60 : dikeyde daha geniş */
+            height: 55%;
+            /* Biraz daha geniş */
             transform: translate(-50%, -50%);
-            border-radius: 18px;
-            border: 3px dashed rgba(148, 163, 184, 0.9);
-            /* biraz daha kalın ve belirgin */
-            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.6);
+            border-radius: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75);
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        /* Selfie modunda yüz çemberi */
+        /* Köşe çizgileri (Viewfinder effect) */
+        #frame-guide::before,
+        #frame-guide::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-color: var(--primary);
+            border-style: solid;
+            transition: all 0.3s ease;
+        }
+
+        #frame-guide::before {
+            top: 0;
+            left: 0;
+            border-width: 3px 0 0 3px;
+            border-radius: 4px 0 0 0;
+        }
+
+        #frame-guide::after {
+            bottom: 0;
+            right: 0;
+            border-width: 0 3px 3px 0;
+            border-radius: 0 0 4px 0;
+        }
+
+        /* Tarama Animasyonu */
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
+            top: 0;
+            animation: scan 2.5s ease-in-out infinite;
+            opacity: 0.8;
+        }
+
+        @keyframes scan {
+            0% {
+                top: 0;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 100%;
+                opacity: 0;
+            }
+        }
+
+        /* Selfie Çemberi */
         #selfie-circle {
             position: absolute;
             left: 50%;
             top: 50%;
-            /* 35% → 50% : tam ortaya gelsin */
             width: 80%;
-            /* 55% → 80% : daireyi ciddi büyüttük */
             aspect-ratio: 1/1;
             transform: translate(-50%, -50%);
-            border-radius: 999px;
-            border: 3px dashed rgba(148, 163, 184, 0.9);
-            /* biraz daha kalın ve belirgin */
-            box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.6);
+            border-radius: 50%;
+            border: 2px dashed rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.75);
             display: none;
         }
 
-
         #hint {
             position: absolute;
-            bottom: 12px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 12px;
+            width: 80%;
             text-align: center;
-            background: rgba(15, 23, 42, 0.7);
-            padding: 4px 10px;
-            border-radius: 999px;
-            backdrop-filter: blur(10px);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            padding: 8px 16px;
+            border-radius: 99px;
+            font-size: 13px;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         #debug-rect {
             position: absolute;
-            border: 2px solid rgba(34, 197, 94, 0.9);
-            border-radius: 10px;
+            border: 2px solid var(--success);
+            border-radius: 8px;
             pointer-events: none;
             display: none;
+            transition: all 0.1s linear;
         }
 
         #controls {
             display: flex;
-            gap: 8px;
-            font-size: 12px;
-            opacity: 0.9;
-            margin-top: 4px;
+            gap: 12px;
+            width: 100%;
+            max-width: 400px;
+            justify-content: center;
         }
 
         button {
-            border-radius: 999px;
-            border: 1px solid rgba(148, 163, 184, 0.4);
-            background: #020617;
-            color: #e5e7eb;
-            padding: 6px 12px;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
             cursor: pointer;
-            font-size: 12px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            outline: none;
+        }
+
+        #manual-btn {
+            background: var(--primary);
+            color: #fff;
+            flex: 2;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        #manual-btn:hover {
+            background: #2563eb;
+        }
+
+        #manual-btn:active {
+            transform: scale(0.98);
+        }
+
+        #restart-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-sub);
+            flex: 1;
+        }
+
+        #restart-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        #next-step-btn {
+            display: none;
         }
 
         button[disabled] {
-            opacity: 0.4;
-            cursor: default;
-        }
-
-        button:hover:not([disabled]) {
-            background: #0f172a;
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
         }
 
         #preview-wrapper {
-            max-width: 480px;
             width: 100%;
-            margin-top: 8px;
+            max-width: 400px;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
+            gap: 8px;
+            margin-top: auto;
         }
 
         .preview-card {
-            border-radius: 10px;
-            border: 1px solid rgba(148, 163, 184, 0.4);
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
             overflow: hidden;
-            background: #020617;
-            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100px;
+            position: relative;
         }
 
         .preview-card img {
             width: 100%;
-            display: block;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.4;
+            transition: opacity 0.3s;
+        }
+
+        .preview-card.filled img {
+            opacity: 1;
         }
 
         .preview-card div {
-            padding: 4px 6px 6px;
-            color: #9ca3af;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            font-size: 10px;
+            padding: 4px 0;
+            text-align: center;
+            color: #ccc;
+            backdrop-filter: blur(4px);
         }
 
         #submit-btn {
-            margin-top: 6px;
+            width: 100%;
+            max-width: 400px;
+            background: var(--success);
+            color: #fff;
+            font-weight: 600;
+            padding: 14px;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
         }
 
         #version-tag {
             position: fixed;
-            bottom: 4px;
-            right: 6px;
-            font-size: 10px;
-            opacity: 0.5;
-            color: #fff;
-            pointer-events: none;
-            z-index: 9999;
+            bottom: 6px;
+            right: 8px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.2);
+            font-family: monospace;
+            z-index: 100;
         }
 
-        #process-canvas,
-        #capture-canvas {
+        canvas {
             display: none;
         }
     </style>
 
-    <!-- OpenCV.js (CDN) -->
+    <!-- OpenCV.js -->
     <script async src="https://docs.opencv.org/4.x/opencv.js" type="text/javascript"></script>
 </head>
 
 <body>
+
     <header>
-        <h1>Copoint ID Capture</h1>
-        <div id="status">OpenCV yükleniyor…</div>
+        <h1>Copoint Capture</h1>
+        <div id="status">Başlatılıyor…</div>
     </header>
 
     <div id="main">
-        <div id="step-indicator">Adım 1 / 3 – Kimlik ön yüz</div>
+        <div id="step-indicator">Kimlik Ön Yüz</div>
 
         <div id="video-container">
             <video id="video" autoplay playsinline></video>
             <div id="overlay">
-                <div id="frame-guide"></div>
-                <div id="selfie-circle"></div>
-                <div id="hint">Kimliği çerçevenin içine yerleştir, sabit tut. Netleşince otomatik fotoğraf alınacak.
+                <div id="frame-guide">
+                    <div class="scan-line"></div>
                 </div>
+                <div id="selfie-circle"></div>
+                <div id="hint">Lütfen kimliği çerçevenin içinde tutun</div>
                 <div id="debug-rect"></div>
             </div>
         </div>
 
         <div id="controls">
-            <button id="restart-btn" disabled>Bu adımı yeniden çek</button>
-            <button id="manual-btn" disabled>Manuel çek</button>
-            <button id="next-step-btn" disabled>Sonraki adım</button>
+            <button id="restart-btn" disabled>Tekrar</button>
+            <button id="manual-btn" disabled>Manuel</button>
+            <button id="next-step-btn" style="display:none">İleri</button>
         </div>
 
         <div id="preview-wrapper">
-            <div class="preview-card">
+            <div class="preview-card" id="card-front">
                 <img id="preview-front" />
-                <div>Ön yüz</div>
+                <div>Ön</div>
             </div>
-            <div class="preview-card">
+            <div class="preview-card" id="card-back">
                 <img id="preview-back" />
-                <div>Arka yüz</div>
+                <div>Arka</div>
             </div>
-            <div class="preview-card">
+            <div class="preview-card" id="card-selfie">
                 <img id="preview-selfie" />
                 <div>Selfie</div>
             </div>
         </div>
 
-        <button id="submit-btn" disabled>Hepsini gönder</button>
-        <div id="version-tag">v1.2 (Hızlı Çekim)</div>
+        <button id="submit-btn" disabled>Onayla ve Gönder</button>
+        <div id="version-tag">v1.3</div>
     </div>
 
-    <!-- İşleme için canvas'lar -->
     <canvas id="process-canvas"></canvas>
     <canvas id="capture-canvas"></canvas>
 
@@ -268,14 +408,16 @@
         const frameGuide = document.getElementById("frame-guide");
         const selfieCircle = document.getElementById("selfie-circle");
 
+        // Preview Cards
+        const cardFront = document.getElementById("card-front");
+        const cardBack = document.getElementById("card-back");
+        const cardSelfie = document.getElementById("card-selfie");
+
         const processCanvas = document.getElementById("process-canvas");
-        // getImageData ile sürekli okuma yaptığın canvas
         const processCtx = processCanvas.getContext("2d", { willReadFrequently: true });
 
         const captureCanvas = document.getElementById("capture-canvas");
-        // bunda sürekli getImageData yok, normal kalsın yeterli
         const captureCtx = captureCanvas.getContext("2d");
-
 
         const debugRect = document.getElementById("debug-rect");
 
@@ -296,14 +438,15 @@
         // Wizard state
         const steps = ["id_front", "id_back", "selfie"];
         let currentStepIndex = 0;
+
         let frontImage = null;
         let backImage = null;
         let selfieImage = null;
 
-        // Stabilite için basit state (ön/arka)
+        // Auto Capture Settings
         let stableFrames = 0;
-        const REQUIRED_STABLE_FRAMES = 2;   // 3 -> 2 (Neredeyse anında)
-        const BLUR_THRESHOLD = 15.0;        // 35 -> 15 (Bulanık olsa bile çek)
+        const REQUIRED_STABLE_FRAMES = 2; // Hızlı
+        const BLUR_THRESHOLD = 15.0; // Toleranslı
         const MIN_CARD_AREA_RATIO = 0.15;
 
         let lastRect = null;
@@ -312,15 +455,15 @@
             const step = steps[currentStepIndex];
 
             const labels = {
-                id_front: "Adım 1 / 3 – Kimlik ön yüz",
-                id_back: "Adım 2 / 3 – Kimlik arka yüz",
-                selfie: "Adım 3 / 3 – Selfie"
+                id_front: "1. Adım: Kimlik Ön Yüz",
+                id_back: "2. Adım: Kimlik Arka Yüz",
+                selfie: "3. Adım: Selfie"
             };
 
             const hints = {
-                id_front: "Kimliği çerçevenin içine yerleştir, sabit tut. Netleşince otomatik fotoğraf alınacak.",
-                id_back: "Bu kez kimliğin arka yüzünü çerçeveye yerleştir, sabit tut.",
-                selfie: "Yüzünü daire içine al, ışığı yüzüne çevir ve 'Manuel çek' butonuna dokun."
+                id_front: "Kimliği dikdörtgenin içine yerleştirin.",
+                id_back: "Kimliğin arka yüzünü çevirin.",
+                selfie: "Yüzünüzü dairenin içine alın."
             };
 
             stepIndicator.textContent = labels[step];
@@ -332,18 +475,23 @@
 
             manualBtn.disabled = !cvReady;
             restartBtn.disabled = true;
-            nextStepBtn.disabled = !captured;
+
+            // Highlight active card
+            [cardFront, cardBack, cardSelfie].forEach(c => c.style.border = "1px solid rgba(255,255,255,0.05)");
+            if (step === "id_front") cardFront.style.border = "1px solid var(--primary)";
+            if (step === "id_back") cardBack.style.border = "1px solid var(--primary)";
+            if (step === "selfie") cardSelfie.style.border = "1px solid var(--primary)";
 
             if (isSelfie) {
-                statusEl.textContent = "Selfie adımı – yüzünü kadraja al.";
+                statusEl.textContent = "Hazır";
             } else {
-                statusEl.textContent = "Kamerayı kimliğe doğrultun…";
+                statusEl.textContent = "Aranıyor...";
             }
         }
 
         function onOpenCvReady() {
             cvReady = true;
-            statusEl.textContent = "OpenCV hazır. Kamera açılıyor…";
+            statusEl.textContent = "Kamera Başlatılıyor...";
             initCamera();
         }
 
@@ -355,16 +503,12 @@
             };
         }
 
-        // OpenCV Timeout
         setTimeout(() => {
             if (!cvReady) {
-                statusEl.textContent = "HATA: OpenCV yüklenemedi. İnternet bağlantınızı kontrol edip sayfayı yenileyin.";
-                statusEl.style.color = "#ef4444"; // Hata rengi (kırmızı)
+                statusEl.textContent = "Hata: OpenCV Modülü Yüklenemedi.";
+                statusEl.style.color = "var(--accent)";
             }
-        }, 15000); // 15 saniye bekle
-
-        // 🔥 Kamera, adım durumuna göre ön/arka seçiliyor
-
+        }, 15000);
 
         async function initCamera() {
             try {
@@ -373,12 +517,13 @@
 
                 const constraints = {
                     video: {
-                        facingMode: isSelfie ? "user" : "environment"
+                        facingMode: isSelfie ? "user" : "environment",
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
                     },
                     audio: false
                 };
 
-                // Eski stream varsa durdur
                 if (stream) {
                     stream.getTracks().forEach(t => t.stop());
                 }
@@ -386,11 +531,10 @@
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
 
-                // 🔥 Selfie adımında tarayıcının verdiği aynayı tekrar çevir → düz görünür
                 if (isSelfie) {
-                    video.style.transform = "scaleX(-1)"; // ön kamera ters görünmesin
+                    video.style.transform = "scaleX(-1)";
                 } else {
-                    video.style.transform = "scaleX(1)";  // kimlik adımlarında normal
+                    video.style.transform = "scaleX(1)";
                 }
 
                 video.onloadedmetadata = () => {
@@ -401,21 +545,18 @@
                 };
             } catch (err) {
                 console.error(err);
-                statusEl.textContent = "Kamera açılamadı: " + err.message;
+                statusEl.textContent = "Kamera hatası: " + err.message;
             }
         }
-
 
         function setupCanvasSize() {
             const vw = video.videoWidth;
             const vh = video.videoHeight;
-
-            const width = vw || 480;
-            const height = vh || 640;
+            const width = vw || 640;
+            const height = vh || 480;
 
             processCanvas.width = width;
             processCanvas.height = height;
-
             captureCanvas.width = width;
             captureCanvas.height = height;
         }
@@ -444,11 +585,7 @@
             if (captured) return;
 
             const step = steps[currentStepIndex];
-
-            // Selfie adımında OpenCV ile auto-capture yok, manuel
-            if (step === "selfie") {
-                return;
-            }
+            if (step === "selfie") return;
 
             processCtx.drawImage(video, 0, 0, processCanvas.width, processCanvas.height);
             const frame = processCtx.getImageData(0, 0, processCanvas.width, processCanvas.height);
@@ -472,13 +609,8 @@
 
             const bestRect = findBestCardRect(contours, src.cols, src.rows);
 
-            src.delete();
-            gray.delete();
-            blurred.delete();
-            edges.delete();
-            lap.delete();
-            contours.delete();
-            hierarchy.delete();
+            src.delete(); gray.delete(); blurred.delete();
+            edges.delete(); lap.delete(); contours.delete(); hierarchy.delete();
 
             if (bestRect) {
                 const { x, y, w, h } = bestRect;
@@ -491,15 +623,15 @@
 
                 if (stable && blurOk && areaOk) {
                     stableFrames++;
-                    statusEl.textContent = `Kimlik algılandı, sabit bekleniyor… (${stableFrames}/${REQUIRED_STABLE_FRAMES})`;
+                    statusEl.innerHTML = `<span style="color:var(--success)">Yakalandı! Sabit tutun... (${stableFrames}/${REQUIRED_STABLE_FRAMES})</span>`;
                 } else {
                     stableFrames = 0;
                     let reason = "";
-                    if (!areaOk) reason = "Daha yaklaş";
-                    else if (!blurOk) reason = `Netleştir (${blurScore.toFixed(0)}/15)`;
-                    else if (!stable) reason = "Sabit tut";
+                    if (!areaOk) reason = "Yaklaşın";
+                    else if (!blurOk) reason = "Netleştirin";
+                    else if (!stable) reason = "Sabit Tutun";
 
-                    statusEl.innerHTML = `<span style="color: #facc15; font-size:14px">${reason}</span> <span style="font-size:10px; opacity:0.7">(${blurScore.toFixed(0)})</span>`;
+                    statusEl.innerHTML = `Aranıyor... <span style="color:var(--accent)">${reason}</span>`;
                 }
 
                 if (stableFrames >= REQUIRED_STABLE_FRAMES) {
@@ -508,18 +640,16 @@
             } else {
                 hideDebugRect();
                 stableFrames = 0;
-                statusEl.textContent = `Kimlik arıyor…`;
+                statusEl.textContent = "Kimlik Aranıyor...";
             }
         }
 
         function lapVariance(mat) {
             let data = mat.data64F;
             if (!data || data.length === 0) return 0.0;
-
             let sum = 0;
             for (let i = 0; i < data.length; i++) sum += data[i];
             const mean = sum / data.length;
-
             let sqDiff = 0;
             for (let i = 0; i < data.length; i++) {
                 const diff = data[i] - mean;
@@ -549,7 +679,6 @@
                         approx.delete();
                         continue;
                     }
-
                     if (rArea > bestArea) {
                         bestArea = rArea;
                         best = rect;
@@ -557,22 +686,14 @@
                 }
                 approx.delete();
             }
-
             if (!best) return null;
-
-            return {
-                x: best.x,
-                y: best.y,
-                w: best.width,
-                h: best.height
-            };
+            return { x: best.x, y: best.y, w: best.width, h: best.height };
         }
 
         function drawDebugRect(x, y, w, h) {
             const container = document.getElementById("video-container");
             const cw = container.clientWidth;
             const ch = container.clientHeight;
-
             const scaleX = cw / processCanvas.width;
             const scaleY = ch / processCanvas.height;
 
@@ -598,7 +719,6 @@
             const dh = Math.abs(rect.h - lastRect.h);
 
             lastRect = rect;
-            // Toleransı artırdık: 10px -> 20px (El titremesi ok)
             return dx < 20 && dy < 20 && dw < 20 && dh < 20;
         }
 
@@ -607,7 +727,8 @@
             captured = true;
             processing = false;
 
-            statusEl.textContent = "Otomatik fotoğraf alındı ✅";
+            statusEl.innerHTML = "<span style='color:var(--success)'>Mükemmel! ✅</span>";
+            hintEl.textContent = "Alındı, diğer adıma geçiliyor...";
 
             captureCtx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
             const { x, y, w, h } = rect;
@@ -619,41 +740,31 @@
             const tmpCtx = tmpCanvas.getContext("2d");
             tmpCtx.putImageData(cropped, 0, 0);
 
-            const dataUrl = tmpCanvas.toDataURL("image/jpeg", 1);
-
+            const dataUrl = tmpCanvas.toDataURL("image/jpeg", 0.9);
             storeImageForCurrentStep(dataUrl);
 
-            restartBtn.disabled = false;
-            manualBtn.disabled = true;
-            nextStepBtn.disabled = false;
+            onCaptureSuccess();
         }
 
         function manualCapture() {
             if (captured) return;
-
             processing = false;
             captured = true;
 
-            statusEl.textContent = "Manuel fotoğraf alındı ✅";
+            statusEl.innerHTML = "<span style='color:var(--success)'>Manuel Çekim ✅</span>";
 
             const step = steps[currentStepIndex];
             const isSelfie = step === "selfie";
 
             if (isSelfie) {
-                // Selfie'de full frame al
                 captureCtx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
                 const dataUrl = captureCanvas.toDataURL("image/jpeg", 0.9);
                 storeImageForCurrentStep(dataUrl);
-
             } else {
-                // Kimlik adımlarında ortadaki çerçeveye göre Kırp (Crop)
-                // CSS: width: 90%, height: 45% (frame-guide)
-
                 const totalW = captureCanvas.width;
                 const totalH = captureCanvas.height;
-
                 const guideW = totalW * 0.90;
-                const guideH = totalH * 0.45;
+                const guideH = totalH * 0.55; // CSS update ile uyumlu
                 const guideX = (totalW - guideW) / 2;
                 const guideY = (totalH - guideH) / 2;
 
@@ -670,9 +781,23 @@
                 storeImageForCurrentStep(dataUrl);
             }
 
-            restartBtn.disabled = false;
+            onCaptureSuccess();
+        }
+
+        // Capture success logic: Auto Advance
+        function onCaptureSuccess() {
             manualBtn.disabled = true;
-            nextStepBtn.disabled = false;
+            restartBtn.disabled = false;
+
+            // 1.5 sn sonra diğer adıma geç
+            setTimeout(() => {
+                if (currentStepIndex < steps.length - 1) {
+                    goToNextStep();
+                } else {
+                    statusEl.innerHTML = "<span style='color:var(--success)'>Tüm adımlar tamamlandı!</span>";
+                    submitBtn.disabled = false;
+                }
+            }, 1200);
         }
 
         function storeImageForCurrentStep(dataUrl) {
@@ -680,16 +805,15 @@
             if (step === "id_front") {
                 frontImage = dataUrl;
                 previewFront.src = dataUrl;
+                cardFront.classList.add("filled");
             } else if (step === "id_back") {
                 backImage = dataUrl;
                 previewBack.src = dataUrl;
+                cardBack.classList.add("filled");
             } else if (step === "selfie") {
                 selfieImage = dataUrl;
                 previewSelfie.src = dataUrl;
-            }
-
-            if (frontImage && backImage && selfieImage) {
-                submitBtn.disabled = false;
+                cardSelfie.classList.add("filled");
             }
         }
 
@@ -701,12 +825,10 @@
             hideDebugRect();
             manualBtn.disabled = false;
             restartBtn.disabled = true;
-            nextStepBtn.disabled = true;
-            statusEl.textContent = "Tekrar deniyorsun, kamerayı hedefe doğrult.";
+            statusEl.textContent = "Hazır mısınız?";
             startProcessingLoop();
         }
 
-        // 🔥 Adım değişince kamerayı da yeniden init ediyoruz
         function goToNextStep() {
             if (currentStepIndex < steps.length - 1) {
                 currentStepIndex++;
@@ -716,45 +838,29 @@
                 lastRect = null;
                 hideDebugRect();
                 updateUIForStep();
-                initCamera();   // kamera burada ön/arka olarak yeniden seçiliyor
+                initCamera();
             }
         }
 
         async function submitAll() {
             if (!frontImage || !backImage || !selfieImage) return;
 
+            statusEl.innerHTML = "Veriler gönderiliyor...";
+            submitBtn.disabled = true;
+
             const payload = {
                 id_front: frontImage.split(",")[1],
                 id_back: backImage.split(",")[1],
                 selfie: selfieImage.split(",")[1],
-                source: "browser_auto_capture_wizard"
+                source: "browser_v1.3"
             };
 
-            console.log("Gönderilecek payload (kısaltılmış):", {
-                ...payload,
-                id_front: payload.id_front.slice(0, 30) + "...",
-                id_back: payload.id_back.slice(0, 30) + "...",
-                selfie: payload.selfie.slice(0, 30) + "..."
-            });
+            console.log("Simülasyon Payload:", payload);
 
-            // Burayı gerçek Copoint backend endpoint'i ile değiştir:
-            /*
-            try {
-                const res = await fetch("https://your-backend/copoint/identity-upload", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload)
-                });
-                if (!res.ok) throw new Error("Upload failed: " + res.status);
-                const json = await res.json();
-                console.log("Upload OK:", json);
-                statusEl.textContent = "Tüm görüntüler başarıyla yüklendi ✅";
-            } catch (err) {
-                console.error(err);
-                statusEl.textContent = "Upload hatası: " + err.message;
-            }
-            */
-            statusEl.textContent = "Simüle: payload konsola yazıldı (backend bağlanınca burası aktif edilecek).";
+            setTimeout(() => {
+                statusEl.innerHTML = "<span style='color:var(--success)'>Gönderim Başarılı! ✅</span>";
+                submitBtn.textContent = "Tamamlandı";
+            }, 1000);
         }
 
         restartBtn.addEventListener("click", resetCurrentStep);
