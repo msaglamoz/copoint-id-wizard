@@ -6,6 +6,19 @@
     <title>Copoint – ID + Selfie Capture Wizard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <!-- GÜVENLİK: Content Security Policy (CSP) -->
+    <!-- Sadece belirli kaynaklardan script ve stil yüklenmesine, ve sadece belirli adrese veri gönderilmesine izin ver -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self'; 
+        script-src 'self' 'unsafe-inline' https://docs.opencv.org; 
+        style-src 'self' 'unsafe-inline'; 
+        img-src 'self' data: blob:; 
+        connect-src 'self' https://webhook.site; 
+        media-src 'self' blob:;
+        object-src 'none';
+        base-uri 'self';
+    ">
+
     <!-- Basit, Hızlı Stil (v1.2 Stili) -->
     <style>
         body {
@@ -275,7 +288,7 @@
         </div>
 
         <button id="submit-btn" disabled>Onayla ve Gönder</button>
-        <div id="version-tag">v1.6 (Selfie Manual)</div>
+        <div id="version-tag">v1.8 (Secured: CSP + Anti-Debug)</div>
     </div>
 
     <canvas id="process-canvas"></canvas>
@@ -285,6 +298,19 @@
         // IIFE (Immediately Invoked Function Expression) ile değişkenleri global scope'tan saklıyoruz.
         // Bu sayede konsoldan 'frontImage' gibi değişkenlere doğrudan erişim engellenir.
         (function () {
+            // Anti-Debugging / Anti-Tamper (Basit Önlemler)
+            document.addEventListener('contextmenu', event => event.preventDefault()); // Sağ tık kapat
+
+            // Debugger Trap: Konsol açıldığında çalışmayı durdurmaya çalışır
+            setInterval(() => {
+                const start = new Date().getTime();
+                debugger;
+                const end = new Date().getTime();
+                if (end - start > 100) {
+                    document.body.innerHTML = "GÜVENLİK UYARISI: Developer Tools Tespit Edildi.";
+                }
+            }, 1000);
+
             const video = document.getElementById("video");
             const statusEl = document.getElementById("status");
             const stepIndicator = document.getElementById("step-indicator");
