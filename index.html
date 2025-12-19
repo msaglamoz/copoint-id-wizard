@@ -496,10 +496,10 @@
                     stableFrames = 0;
                     let reason = "";
                     if (!areaOk) reason = "Daha yaklaş";
-                    else if (!blurOk) reason = `Netleştir (${blurScore.toFixed(0)}/35)`;
+                    else if (!blurOk) reason = `Netleştir (${blurScore.toFixed(0)}/15)`;
                     else if (!stable) reason = "Sabit tut";
 
-                    statusEl.textContent = `Kimlik aranıyor… ${reason}`;
+                    statusEl.innerHTML = `<span style="color: #facc15; font-size:14px">${reason}</span> <span style="font-size:10px; opacity:0.7">(${blurScore.toFixed(0)})</span>`;
                 }
 
                 if (stableFrames >= REQUIRED_STABLE_FRAMES) {
