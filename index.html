@@ -290,7 +290,7 @@
         </div>
 
         <button id="submit-btn" disabled>Onayla ve Gönder</button>
-        <div id="version-tag">v1.10 (Privacy: Images Hidden)</div>
+        <div id="version-tag">v1.11 (4K Resolution Support)</div>
     </div>
 
     <canvas id="process-canvas"></canvas>
@@ -410,8 +410,8 @@
                     const constraints = {
                         video: {
                             facingMode: isSelfie ? "user" : "environment",
-                            width: { ideal: 1280 },
-                            height: { ideal: 720 }
+                            width: { ideal: 4096 }, // 4K
+                            height: { ideal: 2160 } // 4K
                         },
                         audio: false
                     };
