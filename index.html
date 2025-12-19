@@ -302,8 +302,8 @@
 
         // Stabilite için basit state (ön/arka)
         let stableFrames = 0;
-        const REQUIRED_STABLE_FRAMES = 3;
-        const BLUR_THRESHOLD = 35.0;
+        const REQUIRED_STABLE_FRAMES = 2;   // 3 -> 2 (Neredeyse anında)
+        const BLUR_THRESHOLD = 15.0;        // 35 -> 15 (Bulanık olsa bile çek)
         const MIN_CARD_AREA_RATIO = 0.15;
 
         let lastRect = null;
@@ -598,8 +598,8 @@
             const dh = Math.abs(rect.h - lastRect.h);
 
             lastRect = rect;
-            // Toleransı artırdık: 5px -> 10px
-            return dx < 10 && dy < 10 && dw < 10 && dh < 10;
+            // Toleransı artırdık: 10px -> 20px (El titremesi ok)
+            return dx < 20 && dy < 20 && dw < 20 && dh < 20;
         }
 
         function autoCapture(rect) {
