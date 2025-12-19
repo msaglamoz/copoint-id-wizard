@@ -290,7 +290,7 @@
         </div>
 
         <button id="submit-btn" disabled>Onayla ve Gönder</button>
-        <div id="version-tag">v1.11 (4K Resolution Support)</div>
+        <div id="version-tag">v1.12 (1080p Optimized)</div>
     </div>
 
     <canvas id="process-canvas"></canvas>
@@ -410,8 +410,8 @@
                     const constraints = {
                         video: {
                             facingMode: isSelfie ? "user" : "environment",
-                            width: { ideal: 4096 }, // 4K
-                            height: { ideal: 2160 } // 4K
+                            width: { ideal: 1920 }, // Full HD (Optimized)
+                            height: { ideal: 1080 } // Full HD (Optimized)
                         },
                         audio: false
                     };
