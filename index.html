@@ -581,7 +581,8 @@
             const dh = Math.abs(rect.h - lastRect.h);
 
             lastRect = rect;
-            return dx < 5 && dy < 5 && dw < 5 && dh < 5;
+            // Toleransı artırdık: 5px -> 10px
+            return dx < 10 && dy < 10 && dw < 10 && dh < 10;
         }
 
         function autoCapture(rect) {
