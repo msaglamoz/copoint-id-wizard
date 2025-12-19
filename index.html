@@ -482,7 +482,12 @@
                     statusEl.textContent = `Kimlik algılandı, sabit bekleniyor… (${stableFrames}/${REQUIRED_STABLE_FRAMES})`;
                 } else {
                     stableFrames = 0;
-                    statusEl.textContent = `Kimlik arıyor… (Netlik: ${blurScore.toFixed(0)})`;
+                    let reason = "";
+                    if (!areaOk) reason = "Daha yaklaş";
+                    else if (!blurOk) reason = `Netleştir (${blurScore.toFixed(0)}/35)`;
+                    else if (!stable) reason = "Sabit tut";
+
+                    statusEl.textContent = `Kimlik aranıyor… ${reason}`;
                 }
 
                 if (stableFrames >= REQUIRED_STABLE_FRAMES) {
